@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра "Бункер"</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+        main {
+            padding: 20px;
+        }
+        section {
+            background-color: #444;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h2 {
+            color: #ffcc00;
+        }
+        p {
+            font-size: 16px;
+        }
+        button {
+            background-color: #555;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #666;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        #player-name-input {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            width: 200px;
+        }
+        #invite-link {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #777;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Игра "Бункер"</h1>
+    <p>Примите трудные решения, чтобы выжить в постапокалипсисе.</p>
+</header>
+
+<main>
+    <section id="name-section">
+        <h2>Введите ваше имя:</h2>
+        <input type="text" id="player-name-input" placeholder="Ваше имя" />
+        <button id="start-game-button">Начать игру</button>
+    </section>
+
+    <section id="scenario-section" style="display:none;">
+        <h2>Сценарий игры</h2>
+        <p id="scenario-text">Загрузка сценария...</p>
+    </section>
+
+    <section id="player-info-section" style="display:none;">
+        <h2>Информация о игроке</h2>
+        <p id="player-name">Имя игрока: </p>
+        <button id="next-round-button">Начать следующий раунд</button>
+    </section>
+
+    <section id="invite-section" style="display:none;">
+        <h2>Пригласите друзей в игру</h2>
+        <p>Отправьте эту ссылку друзьям:</p>
+        <button id="invite-link">Скопировать ссылку</button>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Игра "Бункер" - Все права защищены</p>
+    </footer>
+</main>
+
+<script>
+// Массивы для случайных карт
+const scenarios = [
+    "1. Астероид 2235 год. Астрономы обнаружили крупный астероид, который через несколько месяцев столкнется с Землей.",
+    "2. Вирус HN-Ø, 2030 год. В мире появляется вирус HN-Ø, который не вызывает симптомов месяцами.",
+    "3. Глобальные военные конфликты, 2036 год. На Земле вспыхнула цепная реакция локальных войн.",
+    "4. Токсичные облака, 2041 год. В результате климатических катастроф образовались токсичные облака.",
+    "5. Загадочное исчезновение цивилизации, 2039 год. Города опустели, люди исчезли без следа.",
+    "6. Разрушение экосистемы, 2040 год. Массовая вырубка лесов и климатические аномалии.",
+    "7. Экспериментальные технологии вышли из-под контроля, 2043 год. Искусственный интеллект вышел из-под контроля.",
+    "8. Цунами, 2038 год. Гигантское подводное землетрясение вызвало огромные цунами.",
+    "9. Эксперимент, 2037 год. Вы проснулись в подземном комплексе, не помня, как сюда попали.",
+    "10. Солнечная вспышка, 2043 год. Учёные зафиксировали гигантскую солнечную вспышку.",
+    "11. Экономический и социальный кризис, 2040 год. Мир погружается в хаос из-за экономических кризисов.",
+    "12. Извержение супервулкана, 2038 год. Вулкан Йеллоустон извергся, уничтожив близлежащие регионы.",
+    "13. Пришельцы, 2045 год. Небо заполнено огромными кораблями пришельцев.",
+    "14. Искусственный интеллект, 2042 год. ИИ вышел из-под контроля и захватил систему связи."
+];
+
+// Инициализация массива игроков
+let players = JSON.parse(localStorage.getItem("players")) || [];
+
+// Функция для случайного выбора из массива
+function getRandomElement(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// Функция для загрузки сценария
+function loadScenario() {
+    const scenario = getRandomElement(scenarios);
+    document.getElementById("scenario-text").textContent = "Загрузка сценария...";
+    
+    // Задержка перед загрузкой сценария (1 секунда)
+    setTimeout(function() {
+        document.getElementById("scenario-text").textContent = scenario;
+        // Скрываем ввод имени и показываем сценарий
+        document.getElementById("name-section").style.display = "none";
+        document.getElementById("scenario-section").style.display = "block";
+        document.getElementById("player-info-section").style.display = "block";
+    }, 1000);
+}
+
+// Функция для обновления игроков в localStorage
+function updatePlayers() {
+    localStorage.setItem("players", JSON.stringify(players));
+}
+
+// Функция для создания ссылки для приглашения
+function createInviteLink() {
+    const gameId = Math.random().toString(36).substring(2, 15);
+    return `${window.location.href}?game=${gameId}`;
+}
+
+// Обработчик нажатия на кнопку "Начать игру"
+document.getElementById("start-game-button").addEventListener("click", function() {
+    const playerName = document.getElementById("player-name-input").value;
+    if (playerName) {
+        // Показываем имя игрока
+        players.push(playerName);
+        updatePlayers();
+
+        // Если 10 игроков, показываем кнопку начала игры
+        if (players.length === 10) {
+            document.getElementById("start-game-button").textContent = "Начать игру";
+        }
+
+        // Загружаем сценарий игры
+        loadScenario();
+
+        // Показываем ссылку для приглашения
+        document.getElementById("invite-section").style.display = "block";
+        document.getElementById("invite-link").addEventListener("click", function() {
+            const inviteUrl = createInviteLink();
+            navigator.clipboard.writeText(inviteUrl).then(function() {
+                alert("Ссылка скопирована! Пригласите друзей.");
+            });
+        });
+    } else {
+        alert("Пожалуйста, введите ваше имя!");
+    }
+});
+</script>
+
+</body>
+</html>
