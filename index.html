@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <!-- Подключение Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Игра "Бункер"</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -73,56 +71,9 @@
             cursor: pointer;
             border-radius: 5px;
         }
-    </style>
-</head>
-<body>
+        #players-list {
+            color: #ffcc00;
 
-<header>
-    <h1>Игра "Бункер"</h1>
-    <p>Примите трудные решения, чтобы выжить в постапокалипсисе.</p>
-</header>
-
-<main>
-    <section id="name-section">
-        <h2>Введите ваше имя:</h2>
-        <input type="text" id="player-name-input" placeholder="Ваше имя" />
-        <button id="start-game-button">Начать игру</button>
-    </section>
-
-    <section id="scenario-section" style="display:none;">
-        <h2>Сценарий игры</h2>
-        <p id="scenario-text">Загрузка сценария...</p>
-    </section>
-
-    <section id="player-info-section" style="display:none;">
-        <h2>Информация о игроке</h2>
-        <p id="player-name">Имя игрока: </p>
-        <button id="next-round-button">Начать следующий раунд</button>
-    </section>
-
-    <section id="invite-section" style="display:none;">
-        <h2>Пригласите друзей в игру</h2>
-        <p>Отправьте эту ссылку друзьям:</p>
-        <button id="invite-link">Скопировать ссылку</button>
-    </section>
-
-    <footer>
-        <p>&copy; 2025 Игра "Бункер" - Все права защищены</p>
-    </footer>
-</main>
-
-<!-- Подключение внешнего JavaScript файла -->
-<script src="script.js"></script>
-
-</body>
-    <!-- Кнопка для присоединения к игре -->
-<section>
-    <h2>Присоединитесь к игре</h2>
-    <input type="text" id="player-name-input" placeholder="Введите ваше имя" />
-    <button id="join-game-button">Присоединиться</button>
-</section>
-
-</html>
 
 
 
