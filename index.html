@@ -1,111 +1,17 @@
+Да, конечно! Вставьте ваши Firebase-конфигурационные данные в код, где инициализируется Firebase. Для этого нужно заменить часть с конфигурацией Firebase на ваш код с `apiKey`, `authDomain` и остальными данными.
+
+Вот как это будет выглядеть в коде:
+
+### Полный HTML и JavaScript код с Firebase:
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-
     <!-- Подключение Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
-    <section id="invite-section" style="display:none;">
-  // Проверяем, сколько игроков в сессии
-function checkPlayersAndStartGame(gameId) {
-    const gameRef = database.ref('games/' + gameId);
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
     
-    gameRef.child('players').once('value', function(snapshot) {
-        const players = snapshot.val();
-        const playerCount = players ? Object.keys(players).length : 0;
-        if (playerCount === 10) {
-            alert("Все игроки присоединились, можно начинать игру!");
-        }
-    });
-}
-// Генерация уникального ID для игры
-function generateGameId() {
-    return Math.random().toString(36).substring(2, 15);
-}
-
-        <h2>Пригласите друзей в игру</h2>
-    <p>Отправьте эту ссылку друзьям:</p>
-    <button id="invite-link">Скопировать ссылку</button>
-         // Генерация уникального ID для игры
-function generateGameId() {
-    return Math.random().toString(36).substring(2, 15);  // Генерирует случайный ID
-}
-
-// Функция для добавления игрока в сессию
-function addPlayerToGame(gameId, playerName) {
-    const gameRef = database.ref('games/' + gameId);
-    
-    // Добавляем игрока в сессию
-    gameRef.child('players').push().set({
-        name: playerName
-    });
-
-    // Отслеживаем изменения в базе данных (чтобы другие игроки увидели новых участников)
-    gameRef.child('players').on('child_added', function(snapshot) {
-        const player = snapshot.val();
-        console.log(player.name + " присоединился к игре");
-    });
-}
-    document.getElementById("start-game-button").addEventListener("click", function() {
-    const playerName = document.getElementById("player-name-input").value;
-    if (playerName) {
-        // Генерация уникальной ссылки для игры
-        const gameId = generateGameId();
-        
-        // Добавление игрока в Firebase
-        addPlayerToGame(gameId, playerName);
-
-        // Формируем ссылку для приглашения
-        const inviteLink = `${window.location.href}?gameId=${gameId}`;
-
-        // Показываем ссылку для приглашения
-        document.getElementById("invite-section").style.display = "block";
-        document.getElementById("invite-link").textContent = "Пригласить друзей: " + inviteLink;
-        document.getElementById("invite-link").addEventListener("click", function() {
-            navigator.clipboard.writeText(inviteLink).then(function() {
-                alert("Ссылка скопирована! Пригласите друзей.");
-            });
-        });
-    } else {
-        alert("Пожалуйста, введите ваше имя!");
-    }
-});
-// Получаем ID игры из URL
-function getGameIdFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('gameId');
-}
-
-// Присоединение игрока к игре
-function joinGame(playerName) {
-    const gameId = getGameIdFromUrl();
-    if (gameId) {
-        addPlayerToGame(gameId, playerName); // Добавляем игрока в Firebase
-        alert("Вы присоединились к игре!");
-    } else {
-        alert("Неверная ссылка на игру.");
-    }
-}
-</section>
-
-
-<script>
-  // Ваши данные для подключения к Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyBGMcKrZWVwrpvgnzN5n3lmKhm1CDsGpUI",
-    authDomain: "bunkerei2.firebaseapp.com",
-    databaseURL: "https://anrosove.github.io/bunkerei2/",
-    projectId: "bunkerei2",
-    storageBucket: "bunkerei2.firebasestorage.app",
-    messagingSenderId: "1019667402110",
-    appId: "1:1019667402110:web:fb4b472ed764e66f21372f"
-  };
-
-  // Инициализация Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-</script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Игра "Бункер"</title>
@@ -213,6 +119,21 @@ function joinGame(playerName) {
 </main>
 
 <script>
+// Конфигурация Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyBGMcKrZWVwrpvgnzN5n3lmKhm1CDsGpUI",
+    authDomain: "bunkerei2.firebaseapp.com",
+    projectId: "bunkerei2",
+    storageBucket: "bunkerei2.firebasestorage.app",
+    messagingSenderId: "1019667402110",
+    appId: "1:1019667402110:web:fb4b472ed764e66f21372f",
+    measurementId: "G-9V9X07S7J4"
+};
+
+// Инициализация Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
 // Массивы для случайных карт
 const scenarios = [
     "1. Астероид 2235 год. Астрономы обнаружили крупный астероид, который через несколько месяцев столкнется с Землей.",
@@ -265,39 +186,35 @@ function createInviteLink() {
     return `${window.location.href}?game=${gameId}`;
 }
 
+// Функция для добавления игрока в сессию
+function addPlayerToGame(gameId, playerName) {
+    const gameRef = database.ref('games/' + gameId);
+    
+    // Добавляем игрока в сессию
+    gameRef.child('players').push().set({
+        name: playerName
+    });
+
+    // Отслеживаем изменения в базе данных
+    gameRef.child('players').on('child_added', function(snapshot) {
+        const player = snapshot.val();
+        console.log(player.name + " присоединился к игре");
+    });
+}
+
+// Функция для получения ID игры из URL
+function getGameIdFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('game');
+}
+
 // Обработчик нажатия на кнопку "Начать игру"
 document.getElementById("start-game-button").addEventListener("click", function() {
     const playerName = document.getElementById("player-name-input").value;
     if (playerName) {
-        // Показываем имя игрока
-        players.push(playerName);
-        updatePlayers();
-
-        // Если 10 игроков, показываем кнопку начала игры
-        if (players.length === 10) {
-            document.getElementById("start-game-button").textContent = "Начать игру";
-        }
-
-        // Загружаем сценарий игры
-        loadScenario();
-
-        // Показываем ссылку для приглашения
-        document.getElementById("invite-section").style.display = "block";
-        document.getElementById("invite-link").addEventListener("click", function() {
-            const inviteUrl = createInviteLink();
-            navigator.clipboard.writeText(inviteUrl).then(function() {
-                alert("Ссылка скопирована! Пригласите друзей.");
-            });
-        });
-    } else {
-        alert("Пожалуйста, введите ваше имя!");
-    }
-});
-</script>
-
-</body>
-</html>
-
-
-
-
+        // Генерация уникального ID для игры
+        const gameId = Math.random().toString(36).substring(2, 15);
+        
+        // Добавление игрока в Firebase
+        addPlayerToGame
+```
