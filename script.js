@@ -31,9 +31,6 @@ const scenarios = [
     "14. Искусственный интеллект, 2042 год. ИИ вышел из-под контроля и захватил систему связи."
 ];
 
-// Инициализация массива игроков
-let players = [];
-
 // Функция для случайного выбора из массива
 function getRandomElement(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
@@ -74,12 +71,14 @@ function addPlayerToGame(gameId, playerName) {
     gameRef.child('scenario').once('value').then(function(snapshot) {
         const scenario = snapshot.val();
         console.log(`Сценарий игры: ${scenario}`);
+        document.getElementById("scenario-text").textContent = scenario; // Отображаем сценарий
     });
 
-    // Отслеживаем изменения в базе данных
-    gameRef.child('players').on('child_added', function(snapshot) {
-        const player = snapshot.key;
-        console.log(player + " присоединился к игре");
+    // Отслеживаем изменения в базе данных и обновляем список игроков
+    gameRef.child('players').on('value', function(snapshot) {
+        const players = snapshot.val();
+        const playersList = Object.keys(players);
+        document.getElementById("players-list").innerHTML = playersList.join(", ");
     });
 }
 
@@ -126,5 +125,4 @@ document.getElementById("join-game-button").addEventListener("click", function()
         alert("Введите имя и правильную ссылку на игру!");
     }
 });
-
 
