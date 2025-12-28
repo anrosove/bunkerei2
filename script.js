@@ -13,7 +13,7 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// Массивы для случайных карт
+// Массивы для случайных карт (сценариев)
 const scenarios = [
     "1. Астероид 2235 год. Астрономы обнаружили крупный астероид, который через несколько месяцев столкнется с Землей.",
     "2. Вирус HN-Ø, 2030 год. В мире появляется вирус HN-Ø, который не вызывает симптомов месяцами.",
@@ -32,37 +32,33 @@ const scenarios = [
 ];
 
 // Инициализация массива игроков
-let players = JSON.parse(localStorage.getItem("players")) || [];
+let players = [];
 
 // Функция для случайного выбора из массива
 function getRandomElement(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// Функция для загрузки сценария
-function loadScenario() {
+// Функция для генерации уникального ID для игры
+function generateGameId() {
+    return Math.random().toString(36).substring(2, 15);
+}
+
+// Функция для создания игры с сохранением сценария
+function createGame(playerName) {
+    const gameId = generateGameId();
     const scenario = getRandomElement(scenarios);
-    document.getElementById("scenario-text").textContent = "Загрузка сценария...";
-    
-    // Задержка перед загрузкой сценария (1 секунда)
-    setTimeout(function() {
-        document.getElementById("scenario-text").textContent = scenario;
-        // Скрываем ввод имени и показываем сценарий
-        document.getElementById("name-section").style.display = "none";
-        document.getElementById("scenario-section").style.display = "block";
-        document.getElementById("player-info-section").style.display = "block";
-    }, 1000);
-}
 
-// Функция для обновления игроков в localStorage
-function updatePlayers() {
-    localStorage.setItem("players", JSON.stringify(players));
-}
+    // Сохраняем информацию об игре и сценарий в базе данных Firebase
+    const gameRef = database.ref('games/' + gameId);
+    gameRef.set({
+        scenario: scenario,
+        players: {
+            [playerName]: true
+        }
+    });
 
-// Функция для создания ссылки для приглашения
-function createInviteLink() {
-    const gameId = Math.random().toString(36).substring(2, 15);
-    return `${window.location.href}?game=${gameId}`;
+    return gameId;
 }
 
 // Функция для добавления игрока в сессию
@@ -70,34 +66,38 @@ function addPlayerToGame(gameId, playerName) {
     const gameRef = database.ref('games/' + gameId);
     
     // Добавляем игрока в сессию
-    gameRef.child('players').push().set({
-        name: playerName
+    gameRef.child('players').update({
+        [playerName]: true
     });
 
+    // Получаем сценарий для игрока
+    gameRef.child('scenario').once('value').then(function(snapshot) {
+        const scenario = snapshot.val();
+        console.log(`Сценарий игры: ${scenario}`);
+    });
+
+    // Отслеживаем изменения в базе данных
     gameRef.child('players').on('child_added', function(snapshot) {
-        const player = snapshot.val();
-        console.log(player.name + " присоединился к игре");
+        const player = snapshot.key;
+        console.log(player + " присоединился к игре");
     });
 }
 
-// Функция для получения ID игры из URL
+// Получаем ID игры из URL
 function getGameIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('game');
+    return urlParams.get('gameId');
 }
 
 // Обработчик нажатия на кнопку "Начать игру"
 document.getElementById("start-game-button").addEventListener("click", function() {
     const playerName = document.getElementById("player-name-input").value;
     if (playerName) {
-        // Генерация уникального ID для игры
-        const gameId = Math.random().toString(36).substring(2, 15);
-        
-        // Добавление игрока в Firebase
-        addPlayerToGame(gameId, playerName);
+        // Создаём игру и генерируем уникальный ID
+        const gameId = createGame(playerName);
 
         // Формируем ссылку для приглашения
-        const inviteLink = `${window.location.href}?game=${gameId}`;
+        const inviteLink = `${window.location.href}?gameId=${gameId}`;
 
         // Показываем ссылку для приглашения
         document.getElementById("invite-section").style.display = "block";
@@ -107,21 +107,23 @@ document.getElementById("start-game-button").addEventListener("click", function(
                 alert("Ссылка скопирована! Пригласите друзей.");
             });
         });
+
+        // Загружаем сценарий игры для игрока
+        addPlayerToGame(gameId, playerName);
     } else {
         alert("Пожалуйста, введите ваше имя!");
     }
 });
 
-// Присоединение игрока к игре через ссылку
-document.getElementById("start-game-button").addEventListener("click", function() {
+// Присоединение игрока к игре
+document.getElementById("join-game-button").addEventListener("click", function() {
     const playerName = document.getElementById("player-name-input").value;
     const gameId = getGameIdFromUrl();
+    
     if (playerName && gameId) {
-        // Добавляем игрока в Firebase
         addPlayerToGame(gameId, playerName);
-        alert("Вы присоединились к игре!");
     } else {
-        alert("Неверная ссылка на игру или имя не введено.");
+        alert("Введите имя и правильную ссылку на игру!");
     }
 });
 
